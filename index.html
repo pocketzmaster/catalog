@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Pocketzmaster Brochure v2</title>
+<style>
+  html,body{
+    margin:0;
+    height:100%;
+    background:#f3f4f6;
+    font-family:Arial,Helvetica,sans-serif;
+    overflow:hidden;
+  }
+  #book{
+    width:90vw;
+    max-width:900px;
+    aspect-ratio:1/1.414;
+    position:relative;
+    margin:40px auto 20px;
+    perspective:2000px;
+  }
+  .page{
+    position:absolute;
+    width:100%;
+    height:100%;
+    backface-visibility:hidden;
+    transform-origin:left center;
+    transition:transform 0.8s cubic-bezier(0.45,0,0.2,1);
+    box-shadow:0 4px 20px rgba(0,0,0,0.1);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .page img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    background:#fff;
+    display:block;
+  }
+  .flipped{
+    transform:rotateY(-180deg);
+  }
+  #controls{
+    position:absolute;
+    top:50%;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    pointer-events:none;
+  }
+  button{
+    pointer-events:auto;
+    background:rgba(0,0,0,0.7);
+    border:none;
+    color:white;
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    font-size:22px;
+    cursor:pointer;
+    transition:background .3s;
+  }
+  button:hover{
+    background:black;
+  }
+  #hint{
+    position:absolute;
+    bottom:15px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(255,255,255,0.9);
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  }
+  /* === Download button === */
+  #download{
+    text-align:center;
+    margin-top:10px;
+  }
+  #dl-btn{
+    background:#0073e6;
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:10px 20px;
+    font-size:16px;
+    cursor:pointer;
+    transition:background .3s;
+  }
+  #dl-btn:hover{
+    background:#005bb5;
+  }
+</style>
+</head>
+<body>
+  <div id="book"></div>
+
+  <div id="controls">
+    <button id="prev">‹</button>
+    <button id="next">›</button>
+  </div>
+
+  <div id="hint">Click or tap to flip →</div>
+
+  <div id="download">
+    <a href="assets/POCKETZMASTER-MATTRESS-BROCHURE.pdf" download>
+      <button id="dl-btn">⬇ Download PDF</button>
+    </a>
+  </div>
+
+<script>
+const pages = [
+  "assets/page-001.webp",
+  "assets/page-002.webp",
+  "assets/page-003.webp",
+  "assets/page-004.webp"
+];
+
+const book = document.getElementById('book');
+let current = 0;
+
+// 建立所有頁面
+pages.forEach((src, i) => {
+  const div = document.createElement('div');
+  div.className = 'page';
+  div.style.zIndex = pages.length - i;
+  const img = document.createElement('img');
+  img.src = src;
+  div.appendChild(img);
+  book.appendChild(div);
+});
+
+const allPages = document.querySelectorAll('.page');
+const next = document.getElementById('next');
+const prev = document.getElementById('prev');
+
+function updatePages() {
+  allPages.forEach((p, i) => {
+    if (i < current) p.classList.add('flipped');
+    else p.classList.remove('flipped');
+  });
+}
+
+next.onclick = () => {
+  if (current < pages.length) current++;
+  updatePages();
+};
+prev.onclick = () => {
+  if (current > 0) current--;
+  updatePages();
+};
+
+// keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') next.click();
+  if (e.key === 'ArrowLeft') prev.click();
+});
+
+// touch swipe
+let startX = 0;
+book.addEventListener('touchstart', e => (startX = e.touches[0].clientX));
+book.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - startX;
+  if (dx < -50) next.click();
+  if (dx > 50) prev.click();
+});
+
+// hint auto-hide
+setTimeout(() => (document.getElementById('hint').style.display = 'none'), 4000);
+</script>
+</body>
+</html>
